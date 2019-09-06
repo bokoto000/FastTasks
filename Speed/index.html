@@ -1,24 +1,34 @@
-function solution(){
+<!DOCTYPE html>
+
+<script language="JavaScript">
+  function solution(){
 let  n = document.getElementById("n").value;
 let m = document.getElementById("m").value;
 
-var data =document.getElementById("data").value;
-  console.log(data);
+var data =document.getElementById("data").value.toString();
   data=data.split(" ");
+    for( var i = 0; i < data.length;){ 
+   if ( data[i] =="") {
+     data.splice(i,1); 
+   }
+   if(data[i]!="")i++;
+}
   var mat = [];
   for(i = 0 ;i < data.length;i+=3){
-      if(data[i]!=""&&data[i+1]!=""&&data[i+1]!="")
+      if(data[i]!=""&&data[i+1]!=""&&data[i+2]!="")
       {
-          mat.push({x:data[i],y:data[i+1],s:data[i+2]});
+          console.log(data[i] +"  "+data[i+1]+ " "+data[i+2])
+          mat.push({x:parseInt(data[i]),y:parseInt(data[i+1]),s:parseInt(data[i+2])});
       } 
       else console.log("bad data");
   }
-
 
 mat.sort(function(a, b) {
   if (a.s > b.s) return 1;
   else return -1;
 });
+
+
 
 let uniqueSpeeds = [];
 
@@ -113,3 +123,38 @@ ans.sort(function(a, b) {
 
 console.log(ans[0].minS + " " + ans[0].maxS);
 }
+</script>
+
+<html>
+  <head>
+    <title>Speed</title>
+  </head>
+  <body>
+    N: <input type="text" id="n" value="10" /><br />
+    N: <input type="text" id="m" value="17 " /><br />
+    Data: <input type="text" id="data" value="
+    1 2 3 
+    1 2 5 
+    1 3 8 
+    2 4 16 
+    3 5 8 
+    3 6 19 
+    5 6 72 
+    7 8 9 
+    1 9 6 
+    4 7 5 
+    3 8 28 
+    4 2 15 
+    3 6 19 
+    7 8 16 
+    2 10 13 
+    1 10 1 
+    4 5 6" /><br />
+    <button onclick="solution();">
+      Solve
+    </button>
+    <label id="ans" value="test">
+      Отговор
+    </label>
+  </body>
+</html>
