@@ -1,128 +1,132 @@
 <!DOCTYPE html>
 
 <script language="JavaScript">
-  function solution(){
-let  n = document.getElementById("n").value;
-let m = document.getElementById("m").value;
+  function solution() {
+    let n = document.getElementById("n").value;
+    let m = document.getElementById("m").value;
 
-var data =document.getElementById("data").value.toString();
-  data=data.split(" ");
-    for( var i = 0; i < data.length;){ 
-   if ( data[i] =="") {
-     data.splice(i,1); 
-   }
-   if(data[i]!="")i++;
-}
-  var mat = [];
-  for(i = 0 ;i < data.length;i+=3){
-      if(data[i]!=""&&data[i+1]!=""&&data[i+2]!="")
-      {
-          console.log(data[i] +"  "+data[i+1]+ " "+data[i+2])
-          mat.push({x:parseInt(data[i]),y:parseInt(data[i+1]),s:parseInt(data[i+2])});
-      } 
-      else console.log("bad data");
-  }
+    var data = document.getElementById("data").value.toString();
+    data = data.split(" ");
+    for (var i = 0; i < data.length; ) {
+      if (data[i] == "") {
+        data.splice(i, 1);
+      }
+      if (data[i] != "") i++;
+    }
+    var mat = [];
+    for (i = 0; i < data.length; i += 3) {
+      if (data[i] != "" && data[i + 1] != "" && data[i + 2] != "") {
+        console.log(data[i] + "  " + data[i + 1] + " " + data[i + 2]);
+        mat.push({
+          x: parseInt(data[i]),
+          y: parseInt(data[i + 1]),
+          s: parseInt(data[i + 2])
+        });
+      } else console.log("bad data");
+    }
 
-mat.sort(function(a, b) {
-  if (a.s > b.s) return 1;
-  else return -1;
-});
+    mat.sort(function(a, b) {
+      if (a.s > b.s) return 1;
+      else return -1;
+    });
 
+    let uniqueSpeeds = [];
 
-
-let uniqueSpeeds = [];
-
-function extractUniqueSpeeds(mat) {
-  if (mat.length > 0) {
-    speeds = [];
-    speeds[0] = mat[0].s;
-    uniqueSpeedsIndex = 0;
-    for (let i = 1; i < mat.length; i++) {
-      if (mat[i].s != speeds[uniqueSpeedsIndex]) {
-        uniqueSpeedsIndex++;
-        speeds[uniqueSpeedsIndex] = mat[i].s;
+    function extractUniqueSpeeds(mat) {
+      if (mat.length > 0) {
+        speeds = [];
+        speeds[0] = mat[0].s;
+        uniqueSpeedsIndex = 0;
+        for (let i = 1; i < mat.length; i++) {
+          if (mat[i].s != speeds[uniqueSpeedsIndex]) {
+            uniqueSpeedsIndex++;
+            speeds[uniqueSpeedsIndex] = mat[i].s;
+          }
+        }
+        return speeds;
       }
     }
-    return speeds;
-  }
-}
 
-uniqueSpeeds = extractUniqueSpeeds(mat);
+    uniqueSpeeds = extractUniqueSpeeds(mat);
 
-let list = [];
-function transformMat(mat) {
-  for (let i = 0; i < mat.length; i++) {
-    x = mat[i].x;
-    y = mat[i].y;
-    s = mat[i].s;
-    if (!list[x]) list[x] = [];
-    if (!list[y]) list[y] = [];
-    list[x].push({ v: y, s: s });
-    list[y].push({ v: x, s: s });
-  }
-}
-transformMat(mat);
-
-flag = 0;
-usedCount = 0;
-used = [];
-ans = [];
-
-function dfs(list, x, minS, maxS) {
-  usedCount++;
-
-  if (usedCount == n) {
-    flag = 1;
-    ans.push({ minS, maxS });
-    return;
-  }
-  if (flag == 1) return;
-  for (let i = 0; i < list[x].length; i++) {
-    entry = list[x][i];
-
-    if (minS <= entry.s && maxS >= entry.s && used[entry.v] != 1) {
-      used[entry.v] = 1;
-
-      dfs(list, entry.v, minS, maxS);
+    let list = [];
+    function transformMat(mat) {
+      for (let i = 0; i < mat.length; i++) {
+        x = mat[i].x;
+        y = mat[i].y;
+        s = mat[i].s;
+        if (!list[x]) list[x] = [];
+        if (!list[y]) list[y] = [];
+        list[x].push({ v: y, s: s });
+        list[y].push({ v: x, s: s });
+      }
     }
+    transformMat(mat);
+
+    flag = 0;
+    usedCount = 0;
+    used = [];
+    ans = [];
+
+    function dfs(list, x, minS, maxS) {
+      usedCount++;
+
+      if (usedCount == n) {
+        flag = 1;
+        ans.push({ minS, maxS });
+        return;
+      }
+      if (flag == 1) return;
+      for (let i = 0; i < list[x].length; i++) {
+        entry = list[x][i];
+
+        if (minS <= entry.s && maxS >= entry.s && used[entry.v] != 1) {
+          used[entry.v] = 1;
+
+          dfs(list, entry.v, minS, maxS);
+        }
+      }
+    }
+
+    speedsLen = speeds.length - 1;
+    function binarySearch(speeds, left, right, minS) {
+      if (left > right || left > speedsLen || right > speedsLen) return;
+      middle = parseInt((left + right) / 2);
+      maxS = speeds[middle];
+
+      flag = 0;
+      usedCount = 0;
+      used = [];
+      used[1] = 1;
+      dfs(list, mat[0].x, minS, maxS);
+      if (left == right) return;
+      if (flag == 1) {
+        return binarySearch(speeds, left, middle, minS);
+      } else {
+        return binarySearch(speeds, middle + 1, right, minS);
+      }
+    }
+
+    for (let i = 0; i <= speedsLen; i++) {
+      minS = speeds[i];
+      binarySearch(speeds, i, speedsLen, minS);
+    }
+
+    ans.sort(function(a, b) {
+      if (a.maxS - a.minS > b.maxS - b.minS) return 1;
+      if (a.maxS - a.minS < b.maxS - b.minS) return -1;
+      if (a.minS < b.minS) return -1;
+      if (a.minS > b.minS) return 1;
+      if (a.maxS > b.maxS) return -1;
+      if (a.maxS < b.maxS) return 1;
+    });
+
+    console.log(ans[0].minS + " " + ans[0].maxS);
+    if (ans[0].minS && ans[0].maxS) {
+      document.getElementById("ans").innerHTML =
+        ans[0].minS + " " + ans[0].maxS;
+    } else document.getElementById("ans").innerHTML = "None";
   }
-}
-
-speedsLen = speeds.length - 1;
-function binarySearch(speeds, left, right, minS) {
-  if (left > right || left > speedsLen || right > speedsLen) return;
-  middle = parseInt((left + right) / 2);
-  maxS = speeds[middle];
-
-  flag = 0;
-  usedCount = 0;
-  used = [];
-  used[1] = 1;
-  dfs(list, mat[0].x, minS, maxS);
-  if (left == right) return;
-  if (flag == 1) {
-    return binarySearch(speeds, left, middle, minS);
-  } else {
-    return binarySearch(speeds, middle + 1, right, minS);
-  }
-}
-
-for (let i = 0; i <= speedsLen; i++) {
-  minS = speeds[i];
-  binarySearch(speeds, i, speedsLen, minS);
-}
-
-ans.sort(function(a, b) {
-  if (a.maxS - a.minS > b.maxS - b.minS) return 1;
-  if (a.maxS - a.minS < b.maxS - b.minS) return -1;
-  if (a.minS < b.minS) return -1;
-  if (a.minS > b.minS) return 1;
-  if (a.maxS > b.maxS) return -1;
-  if (a.maxS < b.maxS) return 1;
-});
-
-console.log(ans[0].minS + " " + ans[0].maxS);
-}
 </script>
 
 <html>
@@ -132,7 +136,11 @@ console.log(ans[0].minS + " " + ans[0].maxS);
   <body>
     N: <input type="text" id="n" value="10" /><br />
     N: <input type="text" id="m" value="17 " /><br />
-    Data: <input type="text" id="data" value="
+    Data:
+    <input
+      type="text"
+      id="data"
+      value="
     1 2 3 
     1 2 5 
     1 3 8 
@@ -149,7 +157,8 @@ console.log(ans[0].minS + " " + ans[0].maxS);
     7 8 16 
     2 10 13 
     1 10 1 
-    4 5 6" /><br />
+    4 5 6"
+    /><br />
     <button onclick="solution();">
       Solve
     </button>
