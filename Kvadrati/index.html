@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+
+<script language="JavaScript">
+  function solution() {
+    let n = document.getElementById("n").value;
+    let input = document.getElementById("data").value.toString();
+    let symbols = [];
+    let squareSymbols = [];
+    input = input.split(" ");
+    for (var i = 0; i < input.length; ) {
+      if (input[i] == "") {
+        input.splice(i, 1);
+      }
+      if (input[i] != "") i++;
+    }
+    data = [];
+    let o = 0;
+    for (let i = 0; i < n * n; i++) {
+      data[i] = [];
+      for (let j = 0; j < n * n; j++) {
+        if (input[o] != "0") {
+          if (symbols.includes(input[o]) == false) {
+            symbols.push(input[o]);
+          }
+        }
+        data[i][j] = input[o];
+        o++;
+      }
+    }
+    //console.log(symbols);
+    for (let i = 0; i < n; i++) {
+      for (let j = 0; j < n; j++) {
+        squareSymbols[i * n + j] = symbols.slice();
+        for (let k = i * n; k < (i + 1) * n; k++) {
+          for (let l = j * n; l < (j + 1) * n; l++) {
+            if (squareSymbols[i * n + j].includes(data[k][l]) == true) {
+              if (squareSymbols[i * n + j]) {
+                const index = squareSymbols[i * n + j].indexOf(data[k][l]);
+                squareSymbols[i * n + j].splice(index, 1);
+              }
+            }
+          }
+        }
+      }
+    }
+    function check(symbol, x, y) {
+      //console.log(x + " " + y+" :"+symbol);
+      if (symbol == "0") return false;
+      for (let i = 0; i < n * n; i++) {
+        if (x != i) {
+          if (data[i][y] == symbol) return false;
+        }
+      }
+      for (let i = 0; i < n * n; i++) {
+        if (y != i) {
+          if (data[x][i] == symbol) return false;
+        }
+      }
+      const squareIndex = Math.floor(x / n) * n + Math.floor(y / n);
+      // console.log(squareSymbols[squareIndex]);
+      if (!squareSymbols[squareIndex].includes(symbol)) return false;
+      //console.log("true");
+      return true;
+    }
+    foundSol = false;
+    function printAns() {
+      let ans = "<br>";
+      for (let i = 0; i < n * n; i++) {
+        console.log(data[i]);
+
+        ans += data[i].toString().replace(/,/g, " ");
+        ans += "<br>";
+        document.getElementById("ans").innerHTML = ans;
+      }
+    }
+    function recursion(x, y) {
+      if (foundSol) return;
+      if (y == n * n) {
+        y = 0;
+        x++;
+      }
+      if (x < n * n && y < n * n && data[x][y] != "0") {
+        if (y == n * n) {
+          y = 0;
+          x++;
+        } else y++;
+        recursion(x, y);
+        return;
+      }
+      if (x == n * n && y == 0) {
+        printAns();
+        foundSol = true;
+        return;
+      }
+      let i = x;
+      let j = y;
+      const squareIndex = Math.floor(i / n) * n + Math.floor(j / n);
+      let availableSymbols = squareSymbols[squareIndex];
+      if (data[i][j] == "0") {
+        for (let k = 0; k < squareSymbols[squareIndex].length; k++) {
+          if (check(squareSymbols[squareIndex][k], i, j)) {
+            data[i][j] = squareSymbols[squareIndex][k];
+            squareSymbols[squareIndex][k] = "0";
+            recursion(x, y + 1);
+            squareSymbols[squareIndex][k] = data[i][j];
+            data[i][j] = "0";
+          }
+        }
+      }
+    }
+    recursion(0, 0);
+    console.log(foundSol);
+  }
+</script>
+<html>
+  <head>
+    <title>Kvadrati</title>
+  </head>
+  <body>
+    N: <input type="text" id="n" value="3" /><br />
+    Data:
+    <input
+      type="text"
+      id="data"
+      value="
+      B Y 0 0 P 0 0 0 0
+      L 0 0 R E B 0 0 0 
+      0 E W 0 0 0 0 L 0 
+      W 0 0 0 L 0 0 0 Y
+      G 0 0 W 0 Y 0 0 R 
+      P 0 0 0 O 0 0 0 L
+      0 L 0 0 0 0 O W 0
+      0 0 0 G R E 0 0 B 
+      0 0 0 0 W 0 0 P E"
+    /><br />
+    <button onclick="solution();">
+      Solve
+    </button>
+    <label id="ans" value="test">
+      Отговор
+    </label>
+  </body>
+</html>
